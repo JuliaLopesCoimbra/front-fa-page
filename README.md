@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# João Gomes Fã-Clube
 
-## Getting Started
+Hub digital do fã-clube do cantor João Gomes — protótipo **somente
+front-end**, mobile-first (largura de app, sem simular bezel de celular).
+Todos os dados vêm de mocks locais tipados em `src/mocks/`, incluindo agenda
+de shows e produtos da loja (ainda ilustrativos); não há backend, API
+externa ou autenticação real.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Frontend**: Next.js 16 (React 19, TypeScript, Tailwind CSS 4) — projeto
+  único, sem pasta `back/` (não há backend neste projeto)
+- **Ícones**: lucide-react
+- **Package manager**: npm
+
+## Arquitetura
+
+MVVM (frontend com estado de UI local via `useState`/`usePathname`, sem
+estado complexo compartilhado). Ver `docs/ARCHITECTURE.md`.
+
+```
+src/
+  app/
+    layout.tsx                 AppShell + BottomNav + FanClubProvider
+    page.tsx                   Início (dashboard, ArtistHero)
+    fa-clube/page.tsx          ranking completo do fã-clube (top 50)
+    fa-clube/[position]/page.tsx   perfil público do fã (foto, nome, membro desde)
+    agenda/page.tsx            agenda de shows
+    loja/page.tsx              loja de produtos oficiais
+    loja/[id]/page.tsx         detalhe do produto + seleção de tamanho
+    carrinho/page.tsx          carrinho de compras (mock)
+    pagamento/page.tsx         gateway de pagamento mockado (Pix/Cartão)
+    pagamento/sucesso/page.tsx confirmação de compra
+    perfil/page.tsx            perfil do usuário logado (mock)
+    api/health/route.ts        health check
+    api/ready/route.ts         readiness check
+    internal/picbrand/dashboard/route.ts   endpoint reservado (ver abaixo)
+  components/                  AppShell, ArtistHero, PageHeader, FanHeader,
+                                NextShowCard, FanClubRanking, RankingRow,
+                                SpinWheelCard, RouletteWheel, TravelPackagesCard,
+                                MediaOffersCard, MediaOfferVideoModal, CartButton,
+                                ProductDetailClient, BottomNav
+  context/FanClubContext.tsx    estado compartilhado entre páginas (useState):
+                                pontos, giros da roleta, prêmios, carrinho
+  mocks/                        dados tipados (artist, fans, nextShow, agenda,
+                                ranking, products, travelPackages, mediaOffers,
+                                spinWheel, user, pointsHistory, prizeHistory,
+                                purchaseHistory, storyHistory)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Navegação
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`BottomNav` usa `next/link` + `usePathname` para navegação real entre `/`,
+`/fa-clube`, `/agenda`, `/loja` e `/perfil`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tema
 
-## Learn More
+Tema **personalizado** (não é o tema oficial Picbrand): fundo claro, cards em
+branco com sombra/borda sutil, dois cards propositalmente escuros ("Próximo
+Show" e "Gire e Ganhe") para contraste, acento vermelho/laranja (`#E8442C`).
+Tokens centralizados em `src/app/globals.css` (`@theme`).
 
-To learn more about Next.js, take a look at the following resources:
+## Health
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `GET /api/health` — status simples e público
+- `GET /api/ready` — readiness
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Endpoint reservado do dashboard master
 
-## Deploy on Vercel
+`GET /internal/picbrand/dashboard` retorna sempre 404 — reservado pelo
+padrão Picbrand Arch (§14), não é uma decisão deste projeto. Ativação futura
+via `PICBRAND_DASHBOARD_ENABLED` (ver `.env.example`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Fora de escopo (decisão registrada — protótipo local)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Sem backend, sem PostgreSQL/storage, sem deploy, sem Docker, sem CI/CD, sem
+autenticação real, sem admin de negócio, sem `/event`, sem backups. O fluxo de
+compra (`/loja/[id]` → `/carrinho` → `/pagamento` → `/pagamento/sucesso`) é
+100% mockado — não há gateway de pagamento real integrado. Ver
+`docs/ARCHITECTURE.md` para o registro completo dessa decisão.
+
+## Comandos
+
+```bash
+npm run dev     # desenvolvimento — http://localhost:3000
+npm run build   # build de produção
+npm run start   # servir build de produção
+npm run lint    # lint
+```
