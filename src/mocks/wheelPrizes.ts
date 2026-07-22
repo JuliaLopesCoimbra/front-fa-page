@@ -14,7 +14,7 @@ export interface WheelPrize {
 // patrocinadores). 6 cupons + 2 "tente novamente", sorteio uniforme entre
 // as 8 fatias.
 export const wheelPrizes: WheelPrize[] = [
-  { id: "prize-1", type: "coupon", brand: "Mercado Livre", discountLabel: "15% OFF", couponCode: "JG-MLIVRE15", logoUrl: "/logos/mercado-livre.webp", color: "#161616" },
+  { id: "prize-1", type: "coupon", brand: "Mercado Livre", discountLabel: "15% OFF", couponCode: "JG-MLIVRE15", logoUrl: "/logos/mercado-livre.png", color: "#161616" },
   { id: "prize-2", type: "retry", color: "#4B4B4B" },
   { id: "prize-3", type: "coupon", brand: "Heineken", discountLabel: "20% OFF", couponCode: "JG-HEINEKEN20", logoUrl: "/logos/heineken.png", color: "#2A2A2A" },
   { id: "prize-4", type: "coupon", brand: "Samsung", discountLabel: "10% OFF", couponCode: "JG-SAMSUNG10", logoUrl: "/logos/samsung.png", color: "#161616" },
