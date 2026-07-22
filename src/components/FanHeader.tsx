@@ -1,8 +1,34 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 import { fans } from "@/mocks/fans";
+import { fanStories } from "@/mocks/fanStories";
+import StoryViewer from "@/components/StoryViewer";
 
 export default function FanHeader() {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const activeFan = activeIndex !== null ? fans[activeIndex] : null;
+  const activeStory = activeFan
+    ? fanStories.find((story) => story.fanId === activeFan.id)
+    : null;
+
+  const goToNextPerson = () => {
+    setActiveIndex((current) => {
+      if (current === null) return null;
+      return current < fans.length - 1 ? current + 1 : null;
+    });
+  };
+
+  const goToPrevPerson = () => {
+    setActiveIndex((current) => {
+      if (current === null) return null;
+      return current > 0 ? current - 1 : current;
+    });
+  };
+
   return (
     <div className="sticky top-0 z-20 border-b border-border bg-background px-5 pt-3">
       <div className="flex gap-3 overflow-x-auto pb-2">
@@ -16,8 +42,13 @@ export default function FanHeader() {
           </button>
         </div>
 
-        {fans.map((fan) => (
-          <div key={fan.id} className="flex flex-shrink-0 flex-col items-center gap-1">
+        {fans.map((fan, index) => (
+          <button
+            key={fan.id}
+            type="button"
+            onClick={() => setActiveIndex(index)}
+            className="flex flex-shrink-0 flex-col items-center gap-1"
+          >
             <div
               className={`rounded-full p-[2px] ${
                 fan.isHighlighted
@@ -38,9 +69,21 @@ export default function FanHeader() {
             <span className="max-w-[56px] truncate text-[10px] text-muted-foreground">
               {fan.name}
             </span>
-          </div>
+          </button>
         ))}
       </div>
+
+      {activeFan && activeStory && (
+        <StoryViewer
+          key={activeFan.id}
+          fanName={activeFan.name}
+          avatarUrl={activeFan.avatarUrl}
+          images={activeStory.images}
+          onClose={() => setActiveIndex(null)}
+          onFinishForward={goToNextPerson}
+          onFinishBackward={goToPrevPerson}
+        />
+      )}
     </div>
   );
 }
